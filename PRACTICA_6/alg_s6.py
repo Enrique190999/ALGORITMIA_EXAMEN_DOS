@@ -22,52 +22,93 @@ class Hanoi:
         en discos
         """
 
+        '''
+        Comprobamos que la variable discos sea un numero, si es asi convertimos de un 
+        numero entero a una colección de "1" igual al numero que tenia anteriormente.
+        
+        Si ya es una secuencia, se convierte a lista para asegurarnos que es modificable
+        
+        - Si le pasa un número habrá 3 discos y estaran todos en el poste 1.
+        - Si le pasan una lista la posición de la lista representa el tamaño del disco
+          si esto es [1,2,1] significa que en el poste 1 tenemos el disco 1 y 3 y en el poste 2
+          el disco 2
+        
+        Si es número significa que habrá tantos discos como la cantidad de ese número
+        en el primer poste.
+        
+        Es decir, si le pasamos un 8 posteriormente se convierte en [1,1,1,1,1,1,1,1] indicando
+        que los 8 discos se encuentran en el poste 1.
+        '''
+        
         if isinstance(discos, int):
-            discos = [1] * discos # todos los discos en el poste 1
+            discos = [1] * discos 
         else:
-            discos = list(discos)    
+            discos = list(discos)
+            
+        # La almacenamos en la variable _discos del constructor
         self._discos = discos
         
+        '''
+        Si no se ha indicado numero de postes, por defecto seran desde
+        3 hasta el valor más alto de la variable discos
+        
+        haremos un maximo de mínimo 3 hasta el número más alto de poste que se encuentre
+        un disco en el.
+        '''
         if num_postes is None:
             num_postes = max(3, max(discos))
         
+        # Almacenamos el número de postes indicado por parámetros en nuestra variable del constructor.
         self._num_postes = num_postes
 
-        # Almacenamos los postes como una lista de listas
+        '''
+        La variable _postes del constructor se convertira en una matriz multidimensional que tendrá
+        tantas filas como número de postes tengamos
+        '''
         self._postes = [[] for _ in range(num_postes)]
-        i = len(discos)
-        for d in discos[::-1]:
-            self._postes[d - 1].append(i)
-            i -= 1
+        
+        # Almacenamos la longitud de los discos
+        longitud_discos = len(discos)
+        
+        # Recorremos del más grande al más pequeño [::-1] es el paso y significa lista invertida
+        for disco in discos[::-1]:
+            
+            self._postes[disco - 1].append(longitud_discos)
+            longitud_discos -= 1
 
     def __len__(self):
         """Devuelve el número de discos"""
-        
         return len(self._discos)
+
+    def __str__(self):
+        return str(self._discos)
 
     def mueve(self, origen, destino):
         """Mueve el disco superior del poste origen al poste destino."""
         
+        # Comprueba que el origen y el destino sea mayor o igual que 1 y menor o igual que el número de postes
         assert 1 <= origen <= self._num_postes
         assert 1 <= destino <= self._num_postes
 
+        # Esto es ya que origen y destino es un numero desde 1 hasta n y las listas comienzan en 0, por ende, se resta 1 para igualar indices
         poste_origen = self._postes[origen - 1]
         poste_destino = self._postes[destino - 1]
-               
+                
+        # Comprobamos que tengmaos discos en el poste de origen
         assert len(poste_origen) > 0 # hay discos en el poste origen
-        disco = poste_origen[-1]
+        disco = poste_origen[-1] # Si tenemos discos extraemos el ultimo, es decir, el de más arriba
 
-        # comprobamos si podemos mover el disco:
+        '''
+        Comprobamos si podemos realizar el moviiento, si en el poste de destino esta vacio o si el poste de destino no 
+        tiene un disco mayor que el que queremos introducir en el
+        '''
         assert (len(poste_destino) == 0 # el destino está vacío
                 or disco < poste_destino[-1]) # contiene un disco mayor
 
-        # movemos:
+        # Si todos los assert han sido correctos movemos el disco
         self._discos[disco - 1] = destino
         poste_origen.pop()
         poste_destino.append(disco)
-    
-    def __str__(self):
-        return str(self._discos)
     
     def realiza_movimientos(self, movimientos, imprime=False):
         """
@@ -77,6 +118,7 @@ class Hanoi:
         
         if imprime:
             self.imprime()
+        
         for origen, destino in movimientos:
             self.mueve(origen, destino)
             if imprime:
@@ -110,8 +152,18 @@ class Hanoi:
         Si hay más de 3 postes, el resto también se deberían utilizar en algunos 
         casos.
         """
+        
+        '''
+        Almacenamos el destino si este no es None, si no se almacena el numero de postes, 
+        que hace referencia al utlimo poste ya que en este caso comenzamos a contar desde 1
+        '''
+        
         destino = destino if destino is not None else self._num_postes
+        
+        # Creamos una lista en que se llama movimientos y esta vacia
         self._movimientos = []
+        
+        # Llama a _resuelve y le pasa el resultado de __len__() y el destino
         self._resuelve(len(self), destino)
 
 
@@ -119,24 +171,46 @@ class Hanoi:
     
 
     def _resuelve(self, n, destino):
+        """
+            n -> Número de discos que queremos movier
+            destino -> A donde queremos moverlos
+        """
         
+        # Comprobamos que queremos mover algun disco        
         if n > 0:
+            # El origen sera el número de discos que queremos mover
             origen = self._discos[n-1]
 
+            # Si el origen es distinto al destino
             if origen != destino:
+                
+                # Almacena el poste auxiliar para mover
                 auxiliar = None
+                
+                # Recorremos los postes desde 1 hasta el número de postes + 1 (Ya que es index < num_postes y no <=)
                 for poste in range(1, self._num_postes + 1):
+                    
+                    # Si el poste que recorremos es el origen o el destino continuamos a la siguiente iteración
                     if poste == origen or poste == destino:
                         continue
+                    
+                    # Si el poste esta vacio se convierte en el auxiliar y rompemos el bucle
                     if not self._postes[poste - 1]:
                         auxiliar = poste
                         break
+                    
+                    # Si el poste auxiliar es none o el disco que queremos meter al auxiliar es mayor que el que ya hay en auxiliar, el poste auxiliar se convierte en el poste.
                     if auxiliar is None or self._postes[poste - 1][-1] > self._postes[auxiliar -1][-1]:
                         auxiliar = poste
 
+                # Terminado toda comprobación, llamamos recursivamente a si mismo en n-1 y pasamos auxiliar
                 self._resuelve(n - 1, auxiliar)
+                
+                # Movemos el origen al destino y agregamos el movimiento
                 self.mueve(origen, destino)
                 self._movimientos.append((origen, destino))
+            
+            # Nos llamamos a nosotros mismos quitando un n y pasando el destino
             self._resuelve(n-1, destino)
 
 
