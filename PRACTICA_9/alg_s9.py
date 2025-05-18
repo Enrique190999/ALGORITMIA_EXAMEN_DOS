@@ -18,41 +18,7 @@ def es_subsecuencia(subsecuencia, secuencia):
     """
     return all(caracter in iterador for caracter in subsecuencia)
 
-
-def subsecuencia_comun_mas_larga(x, y):
-    """
-    Dadas dos cadenas x e y devuelve una que es subsecuencia de ambas y que 
-    tiene la longitud máxima de todas las subsecuencias comunes.
-    """
-    
-    # Almacenamos las longitudes de ambas subsecuencias
-    m = len(x)
-    n = len(y)
-    
-    # Crear una tabla para almacenar las longitudes de las subsecuencias comunes
-    tabla_dp = [[""] * (n + 1) for _ in range(m + 1)]
-    
-    """
-    Recorremos la tabla de (m+1)(n+1)
-    """
-    for i in range(1, m + 1):
-        for j in range(1, n + 1):
-            
-            # Si de ambas cadenas coinciden el caracter reescribo la tabla
-            if x[i - 1] == y[j - 1]:
-                
-                # Agrego el caracter a la subsecuencia que extraje en la anterior iteración
-                tabla_dp[i][j] = tabla_dp[i - 1][j - 1] + x[i - 1]
-            else:
-                
-                # Si no son iguales seleccionamos la que sea mas larga de arriba o de la izquierda
-                tabla_dp[i][j] = max(tabla_dp[i - 1][j], tabla_dp[i][j - 1], key=len)
-    
-    # Finalmente retornamos la tabla en su ultima posición 
-    return tabla_dp[m][n]
-    # TRUCO VISUAL: Se instancia en orden de x,y pero en orden de m,n y la tabla se hace de n*m y se recorre y se retorna de m*n.
-
-def subsecuencias_comunes_mas_largas_profesor(x,y):
+def subsecuencias_comunes_mas_largas(x,y):
     """
     Dadas dos cadenas x e y devuelve una que es subsecuencia de ambas y que 
     tiene la longitud máxima de todas las subsecuencias comunes.
@@ -114,65 +80,7 @@ def subsecuencias_comunes_mas_largas_profesor(x,y):
     return subsecuencia_comun_mas_larga(m,n)
     
 
-def subsecuencias_comunes_mas_largas(x, y):
-    """
-    Dadas dos cadenas x e y devuelve un conjunto con todas las subsecuencias de 
-    ambas que tienen longitud máxima.
-    """
-    
-    # Almacenamos las longitudes de ambas subsecuencias
-    m = len(x)
-    n = len(y)
-    
-    # Crear una tabla para almacenar las longitudes de las subsecuencias comunes
-    tabla_dp = [[set() for _ in range(n + 1)] for _ in range(m + 1)]
-    
-    # Llenar la tabla dp
-    # Recorremos la tabla entera, hasta aqui es igual que en la funcion pero en singular
-    for i in range(m + 1):
-        for j in range(n + 1):
-            
-            # Si es la primera posición se deja en blanco
-            if i == 0 or j == 0:
-                tabla_dp[i][j] = {""}
-                
-            # En caso contrario si los caracteres de ambas tablas son iguales
-            elif x[i - 1] == y[j - 1]:
-                
-                """
-                Si son caracteres iguales (DIFERENCIA CON LA DE SINGULAR)
-                almacenamos en la tabla en la posición
-                pero con la peculiaridad de recorrer todos los caracteres de la tabla de la posición anterior y agregandoles el caracter 
-                que ha hecho coincidencia en esta iteración pero en la posición de esta iteración
-                """
-                tabla_dp[i][j] = {s + x[i - 1] for s in tabla_dp[i - 1][j - 1]}
-            else:
-                
-                """
-                Si no hay coincidencia hace una unión, es decir, ejemplo:
-                { "A", "AB" } | { "AC" } = { "A", "AB", "AC" }
-                Junta en uno ambos conjuntos
-                """
-                tabla_dp[i][j] = tabla_dp[i - 1][j] | tabla_dp[i][j - 1]
-                
-                """
-                Si la longitud del siguiente valor como iterador del de arriba es mayor que el de la izquierda almacenamos en la tabla el valor de arriba
-                """
-                if len(next(iter(tabla_dp[i - 1][j]), "")) > len(next(iter(tabla_dp[i][j - 1]), "")):
-                    tabla_dp[i][j] = tabla_dp[i - 1][j]
-                    
-                # En caso contrario, almacenamos el de la izquierda
-                elif len(next(iter(tabla_dp[i - 1][j]), "")) < len(next(iter(tabla_dp[i][j - 1]), "")):
-                    tabla_dp[i][j] = tabla_dp[i][j - 1]
-    
-    """
-    Una vez finalizado, se almacena la longitud mas larga de subsecuencia que se tenga
-    y retornamos un conunto de todos las subsecuencias que tenga esa longitud
-    """
-    max_length = max(len(s) for s in tabla_dp[m][n])
-    return {s for s in tabla_dp[m][n] if len(s) == max_length}
-
-# Mochila 1-0
+# Mochila 1-0 O(w)
 
 def mochila(objetos, capacidad):
     """
@@ -204,5 +112,59 @@ def mochila(objetos, capacidad):
                 tabla[j] = (tabla[j-peso][0] +valor ,[i] +tabla[j-peso][1])
     return tabla[capacidad]
 
+# Mochila o(n*w)
+def mochila_onw(objetos,capacidad):
+    
+    """
+    Creamos la tabla que tendra una fila por cada objeto 
+    (objetos + 1 para que cuente todos ellos)
+    y dentro de cada fila habra una tupla con un valor númerico correpondiente
+    a cada capacidad
+    """
+    tabla = [[(0) for _ in range(capacidad + 1)] for _ in range (len(objetos)+ 1)]
+    
+    # Recorremos este bucle por los objetos
+    for i in range(1,len(objetos) + 1):
+        
+        # Recorremos este bucle por las capacidades
+        for j in range(1,capacidad + 1):
+            
+            # Extraemos el objeto su peso yvalor
+            peso,valor = objetos[i-1]
+            
+            # Si el peso es mayor que la capacidad en la que estamos guardamos el elemento anterior
+            if peso > j: 
+                tabla[i][j] = tabla[i-1][j]
+            else:
+                
+                # Si realmente este nuevo objeto entra sumamos el valor anterior el actual
+                valor_con_objeto  = tabla[i-1][j-peso] + valor
+                
+                if valor_con_objeto > tabla[i-1][j]:
+                    
+                    # Si el valor a introducir es mayor que el anterior lo modificamos
+                    tabla[i][j] = valor_con_objeto
+                
+                else:
+                    
+                    # Si es mayor el que teniamos antes, guardamos el anterior
+                    tabla[i][j] = tabla[i-1][j]
+        
+        # Ahora preparamos la salida
+        objetos_retorno = []
+        
+        # Creamos dos índices, i para los objetos y j para la capacidad
+        i = len(objetos)
+        j = capacidad
+        
+        while i > 0 and j > 0:
+            if tabla[i][j] != tabla[i-1][j]:
+                objetos_retorno.append(i-1)
+                j -= objetos[i-1][0]
+            i -= 1
+        
+        return tabla[-1][-1], objetos_retorno
+                
+    
 
 # Sugerencia: Haz la función mochila con complejidad espacial O(W)
