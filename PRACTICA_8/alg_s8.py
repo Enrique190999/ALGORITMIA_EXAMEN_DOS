@@ -62,15 +62,30 @@ def subvector_suma_maxima_divide_y_venceras(vector):
 
 def suma_maxima(vector, izquierda, derecha):
 
+    """
+    Si el indice de inicio hasta el de fin es el mismo, significa que es solo
+    un elemento, por lo que el máximo sera el mismo.
+    
+    """
     if izquierda == derecha:
         return vector[izquierda]
 
+    # La mitad sera la suma de ambos elementos entre 2 pero solo con el valor entero.
     medio = (izquierda + derecha) // 2
 
+    """
+    Calculamos el maximo de la izuqierda y de la derecha de forma recursiva:
+    Izquierda es del vector desde la izquierda hasta la mitad.
+    Derecho será del vector desde la mitad + 1 (ya que el valor de la mitad esta ya contemplado 
+    en el maximo de la izquierda) hasta la derecha
+    """
     max_izquierda = suma_maxima(vector, izquierda, medio)
     max_derecha = suma_maxima(vector, medio + 1, derecha)
 
-    # Suma máxima cruzando el medio
+    """
+    Realizamos 3 sumas, suma a la izquierda, suma a la derecha y la suma central
+    que es la suma de la izquierda y de la derecha
+    """
     suma_izquierda = float('-inf')
     suma_actual = 0
     for i in range(medio, izquierda - 1, -1):
@@ -83,8 +98,16 @@ def suma_maxima(vector, izquierda, derecha):
         suma_actual += vector[i]
         suma_derecha = max(suma_derecha, suma_actual)
 
+    # Creamos la suma central sumando suma de la izquierda y de la derecha
     suma_central = suma_izquierda + suma_derecha
 
+    """
+    Al hacer el maximo de los 3 no siempre sera el maximo la suma central, aunque parezca.
+    Porque al realizar sumas de alguno de ambos lados podemos tener la posibilidad de contemplar resultados de 
+    sumas que nos den valores negativos.
+
+    Por lo que al final se comprueba cual de las 3 sumas es la mas alta para retornarla
+    """
     return max(max_izquierda, max_derecha, suma_central)
 # Sugerencia: analiza el tiempo de ejecución de cada una de las funciones anteriores.
 
