@@ -17,7 +17,6 @@ def mergesort(sequencia, key_function, reverse):
 def _merge(izquierda, derecha, key_function):
     pass
         
-        
 def quicksort(sequencia, key_function, reverse):
     pass
 

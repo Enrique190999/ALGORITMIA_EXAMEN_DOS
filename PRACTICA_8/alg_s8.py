@@ -25,24 +25,31 @@
 def subvector_suma_maxima_fuerza_bruta(vector):
     """
     Devuelve la suma máxima de un subvector contiguo del vector dado.
-    
     Aproximación por fuerza bruta.
     """
+    
+    # Inicializamos el máximo de la suma en -infinito
     max_suma = float('-inf')
+    
+    # El máximo de elementos será la longitud del vector
     n = len(vector)
+    
+    """
+    Recorremos el vector desde 0 hasta n
+    luego desde el indice que estemos recorremos hasta n
+    Dentro de ello haremos un sumatorio desde el inicio hasta el final + 1 y el maximo actual será
+    el maximo entre el que habia y el actual
+    [1-8]
+    Primera suma [1-2]
+    Segunda suma [1-3]
+    ....
+    """
     for inicio in range(n):
         for final in range(inicio, n):
              suma_subvector = sum(vector[inicio:final+1])
              max_suma = max(max_suma,suma_subvector)
     
-    #Opcion 2
-    """""
-    for i in range(n):
-        acum = 0
-        for j in range(i,n):
-            acum += vector[j]
-        max_suma = max(max_suma,acum)
-    """ 
+    # Finalmente retornamos la suma
     return max_suma
 
 def subvector_suma_maxima_divide_y_venceras(vector):
