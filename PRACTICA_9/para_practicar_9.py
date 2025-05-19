@@ -6,11 +6,11 @@
 # Subsecuencia Común Más Larga (LCS)
 
 def es_subsecuencia(subsecuencia, secuencia):
-   pass
+    pass
 
 def subsecuencias_comunes_mas_largas(x, y):
-   pass
-
+    pass
+   
 def mochila(objetos, capacidad):
     pass
 
