@@ -32,27 +32,38 @@ class ArbolBusquedaOptimo:
         self.__create_tree()
 
     def __create_tables(self):
-        """
-        Crea las tablas de coste y raíz para el árbol óptimo.
-        """
         n = len(self.p)
-        e = [[0 for _ in range(n+1)] for _ in range(n+1)]
+        # E = coste esperado, W = peso acumulado, R = raíz óptima
+        self.e = [[0]*(n+1) for _ in range(n+1)]
+        self.w = [[0]*(n+1) for _ in range(n+1)]
+        self.raiz_ = [[0]*(n+1) for _ in range(n+1)]
+
+        # Caso base: subárbol vacío (entre Ki y Ki+1) → q[i]
         for i in range(n+1):
-            e[i][i] = self.pseudo[i]
-        w = dp(e)
-        raiz = [[0 for _ in range(n)] for _ in range(n)]
-        for l in range(1, n+1):
-            for i in range(1, n-l+2):
-                j = i + l - 1
-                e[i-1][j] = float("inf")
-                w[i-1][j] = w[i-1][j-1] + self.p[j-1] + self.pseudo[j]
-                for r in range(i, j+1):
-                    t = e[i-1][r-1] + e[r][j] + e[r][j] + w[i-1][j]
-                    if t < e[i-1][j]:
-                        e[i-1][j] = t
-                        raiz[i-1][j-1] = r
-        self.e = e
-        self.raiz_ = raiz
+            self.e[i][i] = self.pseudo[i]
+            self.w[i][i] = self.pseudo[i]
+
+        # long = nº de claves del subproblema  (1 … n)
+        for long in range(1, n+1):
+            for i in range(0, n-long+1):
+                j = i + long      # intervalo (Ki+1 … Kj)  ← j es inclusivo
+                # Peso acumulado: todo lo que haya dentro + q[j]
+                self.w[i][j] = (
+                    self.w[i][j-1] + self.p[j-1] + self.pseudo[j]
+                )
+                self.e[i][j] = float("inf")
+
+                # Probar todas las posibles raíces r  (i+1 … j)
+                for r in range(i+1, j+1):
+                    coste = (
+                        self.e[i][r-1] +          # coste subárbol izquierdo
+                        self.e[r][j]   +          # coste subárbol derecho
+                        self.w[i][j]              # peso total
+                    )
+                    if coste < self.e[i][j]:
+                        self.e[i][j] = coste
+                        self.raiz_[i][j] = r      # guardamos la clave raíz óptima
+
 
     def __create_tree(self, from_=1, to_=None, root=None, altura = 0):
 
@@ -61,17 +72,24 @@ class ArbolBusquedaOptimo:
         if to_ is None:
             to_ = len(self.p)
         if root is None:
-            root = dict()
-            self.root = root
+            root = {}
+            self.root = root          # atributo público con la raíz
         if altura > self.altura:
             self.altura = altura
-        raiz = self.raiz_[from_-1][to_-1]
-        root["k"] = self.claves[raiz-1]
-        root["v"]=raiz
-        root["h"]=altura
-        root["coste"]=self.e[from_-1][to_]
-        root["izq"] = self.__create_tree(from_, raiz-1, {}, altura+1)
-        root["der"] = self.__create_tree(raiz+1, to_, {}, altura+1)
+
+        i = from_ - 1                 # 0-based
+        j = to_                       # inclusive
+        if i >= j:                    # subárbol vacío
+            return None
+
+        r = self.raiz_[i][j]          # índice 1-based de la clave raíz
+        root["k"] = self.claves[r-1]  # clave
+        root["v"] = r                 # posición 1-based (para __search)
+        root["h"] = altura
+        root["coste"] = self.e[i][j]
+
+        root["izq"] = self.__create_tree(from_, r-1, {}, altura+1)
+        root["der"] = self.__create_tree(r+1, to_, {}, altura+1)
         return root
     
     def __search(self, clave=None):
