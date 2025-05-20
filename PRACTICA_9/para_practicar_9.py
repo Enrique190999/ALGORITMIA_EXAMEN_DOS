@@ -11,8 +11,9 @@ def es_subsecuencia(subsecuencia, secuencia):
 def subsecuencias_comunes_mas_largas(x, y):
     pass
    
-def mochila(objetos, capacidad):
+def mochila_ow(objetos, capacidad):
     pass
 
 def mochila_onw(objetos,capacidad):
     pass
+            

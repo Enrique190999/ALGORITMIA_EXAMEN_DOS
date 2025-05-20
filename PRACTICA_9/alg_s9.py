@@ -55,7 +55,7 @@ def subsecuencias_comunes_mas_largas(x,y):
             return {" "}
         
         """
-        Si son el mimso elemento en diagonal retornamos
+        Si son el mismo elemento en diagonal retornamos
         el caracter actual mas los caracteres de la anterior subsecuencia
         """
         if x[fila-1][columna] == y[fila][columna - 1]:
@@ -69,7 +69,6 @@ def subsecuencias_comunes_mas_largas(x,y):
             return subsecuencia_comun_mas_larga(fila-1,columna)
         elif tabla_dp[fila - 1][columna] < tabla_dp[fila][columna - 1]:
             return subsecuencia_comun_mas_larga(fila,columna - 1)
-        
         """
         Si no se ha cumplido ninguna condicion retornamos la union de ambos subconjuntos
         
@@ -82,7 +81,7 @@ def subsecuencias_comunes_mas_largas(x,y):
 
 # Mochila 1-0 O(w)
 
-def mochila(objetos, capacidad):
+def mochila_ow(objetos, capacidad):
     """
     Dada una capacidad y una lista de pesos y valores de n elementos, 
     devuelve el valor máximo que se puede obtener sin superar la capacidad y los objetos que se deben llevar.
@@ -129,7 +128,7 @@ def mochila_onw(objetos,capacidad):
         # Recorremos este bucle por las capacidades
         for j in range(1,capacidad + 1):
             
-            # Extraemos el objeto su peso yvalor
+            # Extraemos el objeto su peso y valor
             peso,valor = objetos[i-1]
             
             # Si el peso es mayor que la capacidad en la que estamos guardamos el elemento anterior
@@ -138,12 +137,12 @@ def mochila_onw(objetos,capacidad):
             else:
                 
                 # Si realmente este nuevo objeto entra sumamos el valor anterior el actual
-                valor_con_objeto  = tabla[i-1][j-peso] + valor
+                valor_mas_objeto  = tabla[i-1][j-peso] + valor
                 
-                if valor_con_objeto > tabla[i-1][j]:
+                if valor_mas_objeto > tabla[i-1][j]:
                     
                     # Si el valor a introducir es mayor que el anterior lo modificamos
-                    tabla[i][j] = valor_con_objeto
+                    tabla[i][j] = valor_mas_objeto
                 
                 else:
                     

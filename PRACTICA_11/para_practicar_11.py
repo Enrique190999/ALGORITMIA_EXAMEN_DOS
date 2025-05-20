@@ -26,7 +26,7 @@ class ArbolBusquedaOptimo:
         
     def __str__(self, clave=None):
         pass
-    
+        
     def __len__(self):
         pass
         
@@ -41,7 +41,7 @@ class ArbolBusquedaOptimo:
         
     def profundidad(self, clave=None):
         pass
-
+        
     def hijos(self, clave=None):
         pass
     

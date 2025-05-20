@@ -8,8 +8,8 @@ import copy
 class CaminosMinimosFloyd:
 
     def __init__(self, grafo):
-        pass
-        
+        pass      
+    
     def distancia(self, origen, destino):
         pass
         

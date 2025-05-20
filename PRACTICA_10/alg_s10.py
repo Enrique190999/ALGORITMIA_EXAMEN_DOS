@@ -67,10 +67,10 @@ class CaminosMinimosFloyd:
 
         """
         Finalmente aplicamos el algoritmo de Floyd.
-        Recorremos la matriz de adyacencia 3 veces, del que sacamos intermedio, origen y destino
-        y comprobamos si el coste de origen a destino es mayor que de origen a intermedio
-        si lo es almacenamos el coste de origen a destino como el de origen a intermedio
-        y en en la matriz de nodos intermedio de origen a destino introducimos este intermedio.
+        
+        Recorremos 3 bucles simultaneamente, intermedio, origen y destino.
+        Comprobamos si la distancia de origen a destino es mayor que la distancia del origen al intermedio y del intermedio al destino, si es asi, modificamos la matriz
+        de distancia con este valor y convertirmo el intermedio en el nuevo intermedio. 
         """
         for intermedio in matriz_adyacencia:
             for origen in matriz_adyacencia:
@@ -94,8 +94,8 @@ class CaminosMinimosFloyd:
         infinito lo retornamos, si no, retornamos None ya que si es infinito
         no tiene una distancia finita.
         """
-        d = self.D[origen][destino]
-        return d if d!= float("inf") else None
+        distancia = self.D[origen][destino]
+        return distancia if distancia!= float("inf") else None
         
     def camino(self, origen, destino):
         """
@@ -175,72 +175,37 @@ def multiplicacion_encadenada_matrices(dimensiones):
     (0,"M_1"), (0,"M_2"),..., (0,"M_N")]
     """
     n = len(dimensiones) - 1
-    
-    """
-    Se instancia la tabla dinamica de la forma de (0,"M_i") tantas veces como n+1 y esto
-    n veces.
-    """
-    tabla_dinamica = [[(0,f"M_{i}") for i in range(1,n+1)] for _ in range(n)]
 
+    # Creamos la tabla dinámica con pares: (coste mínimo, expresión como string)
+    tabla_dinamica = [[(0, f"M_{i}") for i in range(1, n + 1)] for _ in range(n)]
 
-    """
-    Recorremos las longitudes de 1 a n+1
-    Luego en el inicio de 1 hasta el numero de dimensiones menos la longitud mas 1
-    
-    La variable longitud indica cuantas matrices se van a multiplicar en esta iteración.
-    
-    Para ver la matriz en la que empezamos al número de matrices le restamos la longitud actual y le sumamos 1 para que el ultimo nodo se quede
-    comprendido en el rango, ya que al hacer hasta longitud el ultimo no lo cuenta ya que internamente el indice es < x
-    """
-    for longitud in range(1,n+1):
-        for inicio in range(1, n-longitud+1):
-            
-            # Calculamso el fin que es sumando el inicio y la longitud
-            fin = inicio + longitud
-            """
-            Instanciamos temporalmente la variable max que contiene el valor maximo de la multiplicacion.
-            mult contiene la multiplicación pero de forma de cadena de texto mediante el formateo en python
-            """
-            max_ = float("inf")
-            mult = ""
-            for k in range(inicio,fin):
-                """
-                El candidato se calcula sumando de la tabla dinamica:
-                - inicio-1 k-1 y la posicion cero haciendo referencia al valor que quermos sumar.
-                - k y fin - 1 
-                - dimensiones [inicio - 1] * dimensiones[k] * dimensiones[fin]
-                """
-                
-                candidato = tabla_dinamica[inicio-1][k-1][0] + tabla_dinamica[k][fin-1][0] + dimensiones[inicio-1] * dimensiones[k] * dimensiones[fin]
-                
-                """
-                Si el candidato es mayor que el valor maximo que teniamos anteriormente.
-                maximo ahora es el candidato.
-                """
-                if candidato < max_:
-                    max_ = candidato
-                    
-                    # Obtenemos la expresión óptima del lado izquierdo (de M_inicio hasta M_k)
-                    # Si su longitud es 3 (por ejemplo: "M_1"), significa que es una sola matriz y no necesita paréntesis
-                    # En caso contrario (ya hay una multiplicación dentro), se envuelve entre paréntesis para respetar el orden
-                    izquierda = tabla_dinamica[inicio - 1][k - 1][1] \
-                        if len(tabla_dinamica[inicio - 1][k - 1][1]) == 3 \
-                        else f"({tabla_dinamica[inicio - 1][k - 1][1]})"
+    # longitud_actual: número de matrices a multiplicar en esta iteración (2, 3, ..., n)
+    for longitud_actual in range(2, n + 1):  # empieza en 2 porque ya tenemos los costes de una sola matriz
+        for inicio in range(n - longitud_actual + 1):
+            fin = inicio + longitud_actual - 1
+            mejor_coste = float("inf")
+            mejor_expresion = ""
 
-                    # Hacemos lo mismo con la subexpresión derecha (de M_{k+1} hasta M_fin)
-                    # Si es una matriz sola, se deja sin paréntesis; si no, se encapsula
-                    derecha = tabla_dinamica[k][fin - 1][1] \
-                        if len(tabla_dinamica[k][fin - 1][1]) == 3 \
-                        else f"({tabla_dinamica[k][fin - 1][1]})"
+            # punto_de_corte divide la cadena de matrices en dos partes: izquierda y derecha
+            for punto_de_corte in range(inicio, fin):
+                coste_izq, expr_izq = tabla_dinamica[inicio][punto_de_corte]
+                coste_der, expr_der = tabla_dinamica[punto_de_corte + 1][fin]
 
-                    # Unimos las dos subexpresiones con el símbolo de multiplicación
-                    # Esta será la mejor forma encontrada hasta ahora de multiplicar de M_inicio a M_fin
-                    mult = f"{izquierda}*{derecha}"
+                coste_total = coste_izq + coste_der + dimensiones[inicio] * dimensiones[punto_de_corte + 1] * dimensiones[fin + 1]
 
-            # Finalmente en la tabla de inicio-1 y fin-1 almacenamos estos valores
-            tabla_dinamica[inicio-1][fin-1] = (max_, mult)
-            
-            # Retornamos el valor del ultimo elemento de la ultima columna
+                if coste_total < mejor_coste:
+                    mejor_coste = coste_total
+
+                    # Solo se usan paréntesis si hay más de una matriz en la parte
+                    if len(expr_izq) > 3:
+                        expr_izq = f"({expr_izq})"
+                    if len(expr_der) > 3:
+                        expr_der = f"({expr_der})"
+
+                    mejor_expresion = f"{expr_izq}*{expr_der}"
+
+            tabla_dinamica[inicio][fin] = (mejor_coste, mejor_expresion)
+
     return tabla_dinamica[0][-1]
 
 
