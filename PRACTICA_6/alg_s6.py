@@ -171,47 +171,40 @@ class Hanoi:
     
 
     def _resuelve(self, n, destino):
-        """
-            n -> Número de discos que queremos movier
-            destino -> A donde queremos moverlos
-        """
-        
-        # Comprobamos que queremos mover algun disco        
+        # Si no hay discos que mover, salimos
         if n > 0:
-            # El origen sera el número de discos que queremos mover
-            origen = self._discos[n-1]
+            # Origen es el poste donde actualmente está el disco n
+            origen = self._discos[n - 1]
 
-            # Si el origen es distinto al destino
+            # Si el disco ya está en su sitio final, no hace falta moverlo
             if origen != destino:
-                
-                # Almacena el poste auxiliar para mover
-                auxiliar = None
-                
-                # Recorremos los postes desde 1 hasta el número de postes + 1 (Ya que es index < num_postes y no <=)
+                auxiliar = None  # Vamos a buscar un poste auxiliar
+
+                # Recorremos todos los postes para elegir el mejor auxiliar
                 for poste in range(1, self._num_postes + 1):
-                    
-                    # Si el poste que recorremos es el origen o el destino continuamos a la siguiente iteración
+                    # Saltamos si el poste es el de origen o el de destino
                     if poste == origen or poste == destino:
                         continue
-                    
-                    # Si el poste esta vacio se convierte en el auxiliar y rompemos el bucle
+
+                    # Elegimos como auxiliar el primero vacío
                     if not self._postes[poste - 1]:
                         auxiliar = poste
                         break
-                    
-                    # Si el poste auxiliar es none o el disco que queremos meter al auxiliar es mayor que el que ya hay en auxiliar, el poste auxiliar se convierte en el poste.
-                    if auxiliar is None or self._postes[poste - 1][-1] > self._postes[auxiliar -1][-1]:
+
+                    # O el que tenga un disco más grande en la cima
+                    if auxiliar is None or self._postes[poste - 1][-1] > self._postes[auxiliar - 1][-1]:
                         auxiliar = poste
 
-                # Terminado toda comprobación, llamamos recursivamente a si mismo en n-1 y pasamos auxiliar
+                # Paso 1: movemos los n-1 discos más pequeños a un poste auxiliar
                 self._resuelve(n - 1, auxiliar)
-                
-                # Movemos el origen al destino y agregamos el movimiento
+
+                # Paso 2: movemos el disco n desde su origen a su destino
                 self.mueve(origen, destino)
                 self._movimientos.append((origen, destino))
-            
-            # Nos llamamos a nosotros mismos quitando un n y pasando el destino
-            self._resuelve(n-1, destino)
+
+            # Paso 3: finalmente, movemos los n-1 discos desde auxiliar al destino
+            self._resuelve(n - 1, destino)
+
 
 
     
