@@ -84,40 +84,47 @@ def subsecuencia_comun_mas_larga(x, y):
     """
     Dadas dos cadenas x e y devuelve una que es subsecuencia de ambas y que 
     tiene la longitud máxima de todas las subsecuencias comunes.
-    Args:
-        x (str): Cadena x.
-        y (str): Cadena y.
-
-    Returns:
-        str: Subsecuencia común más larga de x e y.
-
-    Complexity:
-        O(m*n)
     """
     
-    len_x, len_y = len(x), len(y)
-    # Tabla de longitudes
-    tabla = [[0 for _ in range(len_y + 1)] for _ in range(len_x + 1)]
-    for row in range(1, len_x + 1):
-        for col in range(1, len_y + 1):
-            if x[row - 1] == y[col - 1]:
-                tabla[row][col] = tabla[row - 1][col - 1] + 1
+    # Almacenamos las longitudes de ambas cadenas
+    m = len(x)
+    n = len(y)
+    
+    # Crear una tabla para almacenar las longitudes de las subsecuencias comunes
+    tabla_dp = [[0] * (n + 1) for _ in range(m + 1)]
+    
+    """
+    Rellenamos la tabla de dimensiones (m+1)x(n+1)
+    donde cada celda contiene la longitud de la subsecuencia común más larga
+    hasta ese punto.
+    """
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            # Si los caracteres actuales coinciden, aumentamos la longitud
+            if x[i - 1] == y[j - 1]:
+                tabla_dp[i][j] = tabla_dp[i - 1][j - 1] + 1
             else:
-                tabla[row][col] = max(tabla[row - 1][col], tabla[row][col - 1])
-    # Reconstruir una LCS
-    current_row, current_col = len_x, len_y
+                # Si no coinciden, tomamos la subsecuencia más larga hasta ahora
+                tabla_dp[i][j] = max(tabla_dp[i - 1][j], tabla_dp[i][j - 1])
+    
+    # Reconstruimos una subsecuencia común más larga recorriendo la tabla desde el final
+    fila, columna = m, n
     subsecuencia = []
-    while current_row > 0 and current_col > 0:
-        if x[current_row - 1] == y[current_col - 1]:
-            subsecuencia.append(x[current_row - 1])
-            current_row -= 1
-            current_col -= 1
-        elif tabla[current_row - 1][current_col] >= tabla[current_row][current_col - 1]:
-            current_row -= 1
+    
+    while fila > 0 and columna > 0:
+        if x[fila - 1] == y[columna - 1]:
+            # Si los caracteres coinciden, los añadimos a la solución
+            subsecuencia.append(x[fila - 1])
+            fila -= 1
+            columna -= 1
+        elif tabla_dp[fila - 1][columna] >= tabla_dp[fila][columna - 1]:
+            fila -= 1
         else:
-            current_col -= 1
-    #return subsecuencia[::-1]
+            columna -= 1
+    
+    # Invertimos la subsecuencia construida porque la hicimos hacia atrás
     return ''.join(reversed(subsecuencia))
+
 
 # Mochila 1-0 O(w)
 
