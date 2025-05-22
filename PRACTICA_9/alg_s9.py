@@ -202,7 +202,7 @@ def mochila(objetos,capacidad):
                 j -= objetos[i-1][0]
             i -= 1
         
-        return tabla[-1][-1], objetos_retorno
+    return tabla[-1][-1], objetos_retorno
                 
     
 
