@@ -14,9 +14,21 @@ class ArbolBusquedaOptimo:
     
     def __init__(self, claves, probab_claves, probab_pseudo = None):
         pass
-
+        self.claves = claves
+        self.altura = -1
+        self.probab_claves = probab_claves
+        
+        if probab_pseudo is not None:
+            self.pseudo = probab_pseudo
+        else:
+            self.pseudo = [(0) _ for in range(len(self.probab_claves) + 1)]
+        
+        self.__create_tables()
+        self.__create_tree()
+        
     def __create_tables(self):
         pass
+        
 
     def __create_tree(self, from_=1, to_=None, root=None, altura = 0):
         pass

@@ -18,6 +18,7 @@ def es_subsecuencia(subsecuencia, secuencia):
     """
     return all(caracter in iterador for caracter in subsecuencia)
 
+
 def subsecuencias_comunes_mas_largas(x,y):
     """
     Dadas dos cadenas x e y devuelve una que es subsecuencia de ambas y que 
@@ -48,36 +49,75 @@ def subsecuencias_comunes_mas_largas(x,y):
                 tabla_dp[i][j] = max(tabla_dp[i - 1][j], tabla_dp[i][j - 1], key=len)
     
     # Creamos una funcion para construir todas las subsecuencias comunes mas larga
-    def subsecuencia_comun_mas_larga(fila,columna) -> set:
+    def _subsecuencia_comun_mas_larga(fila,columna) -> set:
         
         # Si ya no quedan mas caracteres retornamos en blanco y finalizamos
         if fila == 0 or columna == 0:
-            return {" "}
+            return {""}
         
         """
         Si son el mismo elemento en diagonal retornamos
         el caracter actual mas los caracteres de la anterior subsecuencia
         """
-        if x[fila-1][columna] == y[fila][columna - 1]:
-            return { x[fila-1] + s for s in tabla_dp[fila - 1][columna - 1]}
+        if x[fila-1] == y[columna - 1]:
+            return { s + x[fila-1] for s in _subsecuencia_comun_mas_larga(fila - 1,columna - 1)}
         
         """
         Si el de encima es mayor que el de la izquierda retornamos este, 
         si no el otro
         """
-        if tabla_dp[fila - 1][columna] > tabla_dp[fila][columna - 1]:
-            return subsecuencia_comun_mas_larga(fila-1,columna)
-        elif tabla_dp[fila - 1][columna] < tabla_dp[fila][columna - 1]:
-            return subsecuencia_comun_mas_larga(fila,columna - 1)
+        if len(tabla_dp[fila - 1][columna]) > len(tabla_dp[fila][columna - 1]):
+            return _subsecuencia_comun_mas_larga(fila-1,columna)
+        elif len(tabla_dp[fila - 1][columna]) < len(tabla_dp[fila][columna - 1]):
+            return _subsecuencia_comun_mas_larga(fila,columna - 1)
         """
         Si no se ha cumplido ninguna condicion retornamos la union de ambos subconjuntos
         
         """
-        return subsecuencia_comun_mas_larga(fila - 1,columna) | subsecuencia_comun_mas_larga(fila,columna - 1)
+        return _subsecuencia_comun_mas_larga(fila - 1,columna) | _subsecuencia_comun_mas_larga(fila,columna - 1)
 
     
-    return subsecuencia_comun_mas_larga(m,n)
+    return _subsecuencia_comun_mas_larga(m,n)
+
+
+def subsecuencia_comun_mas_larga(x, y):
+    """
+    Dadas dos cadenas x e y devuelve una que es subsecuencia de ambas y que 
+    tiene la longitud máxima de todas las subsecuencias comunes.
+    Args:
+        x (str): Cadena x.
+        y (str): Cadena y.
+
+    Returns:
+        str: Subsecuencia común más larga de x e y.
+
+    Complexity:
+        O(m*n)
+    """
     
+    len_x, len_y = len(x), len(y)
+    # Tabla de longitudes
+    tabla = [[0 for _ in range(len_y + 1)] for _ in range(len_x + 1)]
+    for row in range(1, len_x + 1):
+        for col in range(1, len_y + 1):
+            if x[row - 1] == y[col - 1]:
+                tabla[row][col] = tabla[row - 1][col - 1] + 1
+            else:
+                tabla[row][col] = max(tabla[row - 1][col], tabla[row][col - 1])
+    # Reconstruir una LCS
+    current_row, current_col = len_x, len_y
+    subsecuencia = []
+    while current_row > 0 and current_col > 0:
+        if x[current_row - 1] == y[current_col - 1]:
+            subsecuencia.append(x[current_row - 1])
+            current_row -= 1
+            current_col -= 1
+        elif tabla[current_row - 1][current_col] >= tabla[current_row][current_col - 1]:
+            current_row -= 1
+        else:
+            current_col -= 1
+    #return subsecuencia[::-1]
+    return ''.join(reversed(subsecuencia))
 
 # Mochila 1-0 O(w)
 
@@ -112,7 +152,7 @@ def mochila_ow(objetos, capacidad):
     return tabla[capacidad]
 
 # Mochila o(n*w)
-def mochila_onw(objetos,capacidad):
+def mochila(objetos,capacidad):
     
     """
     Creamos la tabla que tendra una fila por cada objeto 
